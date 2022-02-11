@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include <iostream>
+#include <string>
 using namespace std;
 
 #define ARRSIZE 50
 int datastore[ARRSIZE] = {};
 
 
-// Four variables for the newstore function.
+// I've created four static variables for my implementation.
 
 // dataAllocation tells us how much space is left in datastore
 // newstoreIncrement is the returned value of newstore
@@ -16,7 +17,7 @@ static int newstoreIncrement = 0;
 
 // sizesIncrements helps us keep track of how many stores we have
 // sizes stores the sizes of various mini-stores in datastores plus all the space prior to it
-// ex. sizes[0] holds size N of the first store and sizes[1] holds the size of the second store plus the size of thh first store
+// ex. sizes[0] holds size N of the first store and sizes[1] holds the size of the second store plus the size N of the first store
 //     the reason for holding the sum of the current store size and all the previous ones is to prevent having to go through 
 //     all indices to get the actual position of the Mth store. I only need to subtract sizes[M] 
 //     from sizes[M-1] to know the size and use sizes[M-1] to know where the store M starts.
@@ -94,30 +95,221 @@ int add_element_to_store(int id, int val, int idx=-1)
     return 0;
 }
 
+int getSpaceLeft()
+{
+    // The newest mini-store holds the sum of sizes of all mini-stores.
+    // So, just move backwards through sizes until you find the newest mini-store and print it.
+    for (int i=49;i>=0;i--)
+    {
+        if (sizes[i]!=0) 
+        {
+            return 50 - sizes[i];
+        }
+    }
+}
 
+int print_debug()
+{
+    //first print space not taken up
+    //second print datastore itself
+    //third print any mini-stores
+    //fourth print a bunch of these ####
 
+    printf("available elements in datastore: %d\n\n",getSpaceLeft());
 
+    printf("datastore   :");
+    for (int i=0;i<50;i++)
+    {
+        printf(" %d",datastore[i]);
+    }
+    printf("\n\n");
+
+    int storeNumber = 0;
+    for (int i=0;i<50;i++)
+    {
+        if (sizes[i]!=0)
+        {
+            int jTemp;
+            if (i==0) jTemp = 0;
+            else jTemp =sizes[i-1];
+
+            printf("store %d:",storeNumber);
+            for (int j=jTemp;j<sizes[i];j++)
+            {
+                printf(" %d",datastore[j]);
+            }
+            storeNumber++;
+            printf("\n\n");
+        }
+        else break;
+    }
+
+    printf("#####################################\n\n");
+
+    return 0;
+}
+
+void delete_element_from_store_by_value(int id, int val)
+{
+    int realStartIdx;
+    if (id==0) realStartIdx = 0;
+    else realStartIdx = sizes[id-1];
+
+    // No out of range checks are neccesary because this for loop will never check out of range for val.
+    for (int i=realStartIdx;i<sizes[id];i++)
+    {
+        if (datastore[i]==val) 
+        {
+            datastore[i] = 0;
+            break;
+        }
+    }
+}
+
+void delete_element_from_store_by_index(int id, int idx)
+{
+    int realStartIdx;
+    if (id==0) realStartIdx = 0;
+    else realStartIdx = sizes[id-1];
+
+    if (realStartIdx >= sizes[id]) ;
+    else datastore[realStartIdx + idx] = 0;
+}
+
+void which_stores_have_element(int val)
+{
+    printf("Element %d",val);
+    // This for loop looks through datastore and stops if it finds an instance of val.
+    // If it never does then nothing happens except for the "not available" print out.
+    for (int i=0;i<50;i++)
+    {
+        if (datastore[i]==val) 
+        {
+                // All the code below is code which will go through each store properly and return which stores have val.
+                string toReturn = "";
+                for (int k=0;k<50;k++)
+                {
+                    if (sizes[k]!=0)
+                    {
+                        int jTemp;
+                        if (k==0) jTemp = 0;
+                        else jTemp =sizes[k-1];
+
+                        for (int j=jTemp;j<sizes[k];j++)
+                        {
+                            if (datastore[j]==val) 
+                            {
+                                //printf(" %d,",k);
+                                toReturn = toReturn + " " + to_string(k) + ",";
+                                break; 
+                                // This break is here because it does not matter if we find val again in this store.
+                            }
+                        }
+                    }
+                    else break;
+                }
+
+                // This substring business is to get rid of the trailing comma.
+                cout << toReturn.substr(0,toReturn.size()-1) << endl << endl;
+                return ;
+        }
+    }
+
+    printf(" is not available in any store\n\n");
+    
+}
+
+void delete_store(int id)
+{
+    int iTemp;
+    if (id==0) iTemp = 0;
+    else iTemp =sizes[id-1];
+    // Remember again, sizes[id-1] holds the first index of the mini-store id. And sizes[id] holds the last index of id + 1.
+
+    for (int j=iTemp;j<sizes[id];j++)
+    {
+        datastore[j] = 0;
+    }
+}
+
+int resize_store(int id, int newsize)
+{
+    int prevSize;
+    if (id==0) prevSize = 0;
+    else prevSize = sizes[id-1];
+
+    int currentIdSpace = sizes[id] - prevSize;
+    int totalSpaceLeft = getSpaceLeft();
+
+    if (newsize - currentIdSpace > totalSpaceLeft) return -1;
+    else 
+    {
+        // I must update the sizes array because each element in sizes holds the size of its array and all before it.
+        for (int i=49-(newsize - currentIdSpace);i>=sizes[id];i--)
+        {
+            datastore[i+(newsize - currentIdSpace)] = datastore[i];
+        }
+        
+        // This for loop empties new spaces of old values.
+        for (int i=sizes[id];i<sizes[id]+(newsize - currentIdSpace);i++)
+        {
+            datastore[i] = 0;
+        }
+
+        // This for loop moves elements
+        for (int i=0;i<50;i++)
+        {
+            if (sizes[i]==0) break;
+            else 
+            {
+                sizes[i] += (newsize - currentIdSpace);
+            }
+        }
+
+    }
+
+    return 0;
+}
 
 int main()
 {
     int s1 = newstore(3); // create new empty data store of size 3
     int s2 = newstore(5); // create new empty data store of size 5
 
-    //printf("%d-%d\n",s1,s2);
-
     if (s1 != -1)
     {
-        //THE PROBLEM IS THAT I DECIDED TO SAY IF(IDX==-1) THEN PUT IT AT LAST SPOT INSTEAD OF APPEND TO END
         add_element_to_store(s1, 13);
         add_element_to_store(s1, 15);
         add_element_to_store(s1, 21);
         add_element_to_store(s1, 42); // this should return -1
     }
     
-    for (int i=0;i<50;i++)
+    if (s2 != -1)
     {
-        printf("%d-",datastore[i]);
+        add_element_to_store(s2, 7, 2);
+        add_element_to_store(s2, 15, 0);
+        add_element_to_store(s2, 22, 1);
     }
+    print_debug();
 
-    return 0;
+    delete_element_from_store_by_value(s1, 13);
+    delete_element_from_store_by_value(s1, 71);
+    delete_element_from_store_by_index(s2, 2);
+    delete_element_from_store_by_index(s1, 5);
+    print_debug();
+
+    which_stores_have_element(15);
+    which_stores_have_element(29);
+
+    delete_store(s1);
+    print_debug();
+
+    resize_store(s2, 20);
+    int s3 = newstore(40);
+    print_debug();
+
+    s3 = newstore(30);
+    add_element_to_store(s3, 7, 29);
+    print_debug();
+    
 }
