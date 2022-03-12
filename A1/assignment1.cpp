@@ -54,7 +54,6 @@ int newstore(int ssize)
     else return -1;
 }
 
-
 int add_element_to_store(int id, int val, int idx=-1)
 {
     
