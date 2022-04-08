@@ -278,7 +278,6 @@ int add_element_to_store(int id, int val, int idx=-1)
 
 int print_debug()
 {
-
     if (datastoreLength==0) 
     {
         cout << "Number of total used store elements: 0" << endl << endl;
@@ -399,8 +398,12 @@ int resize_store(int id, int newsize)
 
 int main()
 {
+    cout << "start" << endl;
+
     int s1 = newstore(3); // create new empty data store of size 3
     int s2 = newstore(5); // create new empty data store of size 5
+
+    cout << "next" << endl;
 
     if (s1 != -1)
     {
@@ -424,7 +427,7 @@ int main()
     delete_element_from_store_by_index(s1, 5);
     print_debug();
 
-    which_stores_have_element(15); // these no worky
+    which_stores_have_element(15); 
     which_stores_have_element(29);
 
     delete_store(s1);
