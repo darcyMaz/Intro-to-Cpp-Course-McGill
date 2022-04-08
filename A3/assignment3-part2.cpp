@@ -9,8 +9,6 @@ using namespace std;
 
 // Classes: Card, Hand, Deck, AbstractPlayer, HumanPlayer, ComputerPlayer, BlackJackGame
 
-// Card does not need a destructor but Hand will (to get rid of the cards).
-
 static int casino_wins = 0;
 static int player_wins = 0;
 
